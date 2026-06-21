@@ -24,11 +24,11 @@ if (config.env !== 'test') {
 // set security HTTP headers
 app.use(helmet());
 
-// parse json request body
-app.use(express.json());
+// Body JSON con limite di dimensione (mitiga DoS da payload grandi)
+app.use(express.json({ limit: '10kb' }));
 
-// parse urlencoded request body
-app.use(express.urlencoded({ extended: true }));
+// Body urlencoded con limite di dimensione
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // sanitize request data
 app.use(xss());

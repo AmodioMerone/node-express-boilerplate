@@ -78,7 +78,8 @@ userSchema.methods.isPasswordMatch = async function (password) {
 userSchema.pre('save', async function (next) {
   const user = this;
   if (user.isModified('password')) {
-    user.password = await bcrypt.hash(user.password, 8);
+    // Costo bcrypt 10: rallenta gli attacchi di brute-force offline
+    user.password = await bcrypt.hash(user.password, 10);
   }
   next();
 });
