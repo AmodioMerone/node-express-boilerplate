@@ -41,7 +41,8 @@ describe('Sicurezza applicativa', () => {
   describe('Iniezione NoSQL', () => {
     test('gli operatori NoSQL nel login non autenticano', async () => {
       await insertUsers([userOne]);
-      const res = await request(app).post('/v1/auth/login').send({ email: { $gt: '' }, password: { $gt: '' } });
+      const payload = { email: { $gt: '' }, password: { $gt: '' } };
+      const res = await request(app).post('/v1/auth/login').send(payload);
       expect(res.status).not.toBe(httpStatus.OK);
       expect(res.body).not.toHaveProperty('tokens');
     });
