@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+env:
+  HUSKY: 0
+
+jobs:
+  lint:
+    # check del lint (sintassi corretta)
+    name: Lint
+    runs-on: ubuntu-latest # crea vm con ubuntu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+
+  test:
+     
+    name: Test
+    runs-on: ubuntu-latest
+    services: # avvia un container con mongodb
+      mongodb:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+    env: # senza l'app non parte (usa Joi in config.js)
+      NODE_ENV: test
+      PORT: 3000
+      MONGODB_URL: mongodb://localhost:27017/node-boilerplate
+      JWT_SECRET: secret1_di1_prova11
+      JWT_ACCESS_EXPIRATION_MINUTES: 30
+      JWT_REFRESH_EXPIRATION_DAYS: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn test # esegue lo script di test nwel package.json
