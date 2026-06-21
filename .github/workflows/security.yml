@@ -68,7 +68,7 @@ jobs:
           fetch-depth: 0
       - name: ggshield secret scan
         if: ${{ env.GITGUARDIAN_API_KEY != '' }}
-        uses: GitGuardian/ggshield-action@v1
+        uses: GitGuardian/ggshield-action@v1.52.2
 
   gitleaks:
     # Altro scanner di secret, questo non ha bisogno di chiavi
@@ -79,7 +79,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -90,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Scansione Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs # fs = filesystem = scansiona la cartella del progetto
           scanners: vuln,misconfig,secret # cerca chiavi hardcoded (secret), errori di conf (nel dockerfile o nel compose) ed elenca i pacchetti con CVE note (vuln)
@@ -132,7 +132,7 @@ jobs:
         run: yarn coverage
       - name: Scansione SonarQube
         if: ${{ env.SONAR_TOKEN != '' && env.SONAR_HOST_URL != '' }}
-        uses: sonarsource/sonarqube-scan-action@v3
+        uses: sonarsource/sonarqube-scan-action@v8.2.0
 
   dependency-review:
     # Controlla le nuove dipendenze introdotte dalle pull request
