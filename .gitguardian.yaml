@@ -1,0 +1,9 @@
+# Configurazione di GitGuardian
+version: 2
+
+secret:
+  # Percorsi che non devono essere scansionati, sono esempi e test, i segreti non sono reali
+  ignored-paths:
+    - '**/*.example'
+    - 'tests/**'
+  ignored-matches: []

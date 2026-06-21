@@ -1,0 +1,146 @@
+name: Security
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    # Scansione parte ogni lunedì alle 3
+    - cron: '0 3 * * 1'
+
+permissions: # permesso di leggere il codice, le azioni e caricare i risultati nella tab security
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  HUSKY: 0
+
+jobs:
+  codeql:
+    # SAST di GitHub
+    name: SAST - CodeQL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inizializza CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          queries: security-extended
+      - name: Analisi CodeQL
+        uses: github/codeql-action/analyze@v3
+
+  snyk:
+    # Analisi delle dipendenze e del codice (SAST) con Snyk
+    name: SCA/SAST - Snyk
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+      - run: yarn install --frozen-lockfile
+      - name: Snyk Open Source (dipendenze)
+        if: ${{ env.SNYK_TOKEN != '' }}
+        uses: snyk/actions/node@master
+        with:
+          args: --severity-threshold=high
+      - name: Snyk Code (SAST)
+        if: ${{ env.SNYK_TOKEN != '' }}
+        continue-on-error: true
+        uses: snyk/actions/node@master
+        with:
+          command: code test
+
+  gitguardian:
+    # Scarica tutta la storia git in cerca di secret
+    name: Secret scanning - GitGuardian
+    runs-on: ubuntu-latest
+    env:
+      GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: ggshield secret scan
+        if: ${{ env.GITGUARDIAN_API_KEY != '' }}
+        uses: GitGuardian/ggshield-action@v1
+
+  gitleaks:
+    # Altro scanner di secret, questo non ha bisogno di chiavi
+    name: Secret scanning - gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trivy-fs:
+    # Scarica db di vulnerabilità pubblico e lo confronta con quello che trova nel progetto.
+    name: SCA/Config - Trivy filesystem
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scansione Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs # fs = filesystem = scansiona la cartella del progetto
+          scanners: vuln,misconfig,secret # cerca chiavi hardcoded (secret), errori di conf (nel dockerfile o nel compose) ed elenca i pacchetti con CVE note (vuln)
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          format: sarif
+          output: trivy-fs.sarif
+          exit-code: '0'
+      - name: Carica SARIF Trivy
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-fs.sarif
+
+  sonarqube:
+    # SAST e qualita del codice con SonarQube (importa la coverage)
+    name: SAST/Quality - SonarQube
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+    env:
+      NODE_ENV: test
+      MONGODB_URL: mongodb://localhost:27017/node-boilerplate
+      JWT_SECRET: secret1_di1_prova11
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+      - run: yarn install --frozen-lockfile
+      - name: Genera la coverage
+        continue-on-error: true
+        run: yarn coverage
+      - name: Scansione SonarQube
+        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_HOST_URL != '' }}
+        uses: sonarsource/sonarqube-scan-action@v3
+
+  dependency-review:
+    # Controlla le nuove dipendenze introdotte dalle pull request
+    name: Dependency review (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
