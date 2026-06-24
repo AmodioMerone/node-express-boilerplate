@@ -1,0 +1,48 @@
+#   docker compose -f security/docker-compose.yml run --rm trivy
+#   docker compose -f security/docker-compose.yml run --rm semgrep
+#   docker compose -f security/docker-compose.yml up -d sonarqube   (si genera un token e poi lancia sonarr)
+services:
+  # SCA + misconfigurazioni + segreti: dipendenze (yarn.lock), Dockerfile e compose
+  trivy:
+    image: aquasec/trivy:latest
+    volumes:
+      - ..:/project:ro
+      - trivy-cache:/root/.cache
+    working_dir: /project
+    command: fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed .
+
+  # SAST locale: equivalente operativo del CodeQL che gira in CI
+  # (CodeQL non e' eseguibile in modo semplice in container: resta nella pipeline)
+  semgrep:
+    image: semgrep/semgrep:latest
+    volumes:
+      - ..:/src:ro
+    working_dir: /src
+    command: semgrep --config=p/owasp-top-ten --config=p/javascript --config=p/nodejs .
+
+  # Server SonarQube community per analisi qualità + SAST in locale
+  sonarqube:
+    image: sonarqube:lts-community
+    ports:
+      - '9000:9000'
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+
+  # Scanner SonarQube: lanciare dopo aver avviato il server e generato un token
+  sonar-scanner:
+    image: sonarsource/sonar-scanner-cli:latest
+    profiles: ['scan']
+    network_mode: host
+    volumes:
+      - ..:/usr/src:ro
+    environment:
+      - SONAR_HOST_URL=http://localhost:9000
+      - SONAR_TOKEN=${SONAR_TOKEN:-}
+
+volumes:
+  trivy-cache:
+  sonarqube-data:
+  sonarqube-extensions:

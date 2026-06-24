@@ -11,7 +11,7 @@
     "node": ">=12.0.0"
   },
   "scripts": {
-    "start": "pm2 start ecosystem.config.json --no-daemon",
+    "start": "node src/index.js",
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "test": "jest -i --colors --verbose --detectOpenHandles",
     "test:watch": "jest -i --watchAll",
@@ -54,23 +54,22 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.0",
     "dotenv": "^10.0.0",
-    "express": "^4.17.1",
+    "express": "^4.21.2",
     "express-mongo-sanitize": "^2.0.0",
     "express-rate-limit": "^5.0.0",
     "helmet": "^4.1.0",
     "http-status": "^1.4.0",
     "joi": "^17.3.0",
-    "jsonwebtoken": "^8.5.1",
-    "moment": "^2.24.0",
-    "mongoose": "^5.7.7",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
+    "mongoose": "^6.13.6",
     "morgan": "^1.9.1",
-    "nodemailer": "^6.3.1",
+    "nodemailer": "^9.0.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
-    "pm2": "^5.1.0",
     "swagger-jsdoc": "^6.0.8",
     "swagger-ui-express": "^4.1.6",
-    "validator": "^13.0.0",
+    "validator": "^13.15.22",
     "winston": "^3.2.1",
     "xss-clean": "^0.1.1"
   },
@@ -91,5 +90,12 @@
     "nodemon": "^2.0.0",
     "prettier": "^2.0.5",
     "supertest": "^6.0.1"
+  },
+  "resolutions": {
+    "jsonwebtoken": "^9.0.2",
+    "validator": "13.15.22",
+    "async": "^3.2.2",
+    "cross-spawn": "^7.0.6",
+    "minimatch": "^3.0.5"
   }
 }

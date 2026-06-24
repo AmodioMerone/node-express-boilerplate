@@ -1,0 +1,24 @@
+services:
+  mongodb:
+    image: mongo:4.4
+    networks: [appnet]
+
+  app:
+    image: node:16-alpine
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - MONGODB_URL=mongodb://mongodb:27017/node-boilerplate
+      - JWT_SECRET=secret1_di1_prova11
+    command: node src/index.js
+    volumes:
+      - ..:/app
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+    networks: [appnet]
+
+networks:
+  appnet:
