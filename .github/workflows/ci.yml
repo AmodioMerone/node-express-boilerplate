@@ -36,7 +36,7 @@ jobs:
       NODE_ENV: test
       PORT: 3000
       MONGODB_URL: mongodb://localhost:27017/node-boilerplate
-      JWT_SECRET: secret1_di1_prova11
+      JWT_SECRET: secret1_di1_prova11_secret1_di1_prova11
       JWT_ACCESS_EXPIRATION_MINUTES: 30
       JWT_REFRESH_EXPIRATION_DAYS: 30
     steps:

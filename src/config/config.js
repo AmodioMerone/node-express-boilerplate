@@ -9,7 +9,7 @@ const envVarsSchema = Joi.object()
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
-    JWT_SECRET: Joi.string().required().description('JWT secret key'),
+    JWT_SECRET: Joi.string().required().min(32).description('Chiave segreta JWT, minimo 32 caratteri'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
     JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
     JWT_RESET_PASSWORD_EXPIRATION_MINUTES: Joi.number()
@@ -23,6 +23,7 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
+    CORS_ORIGIN: Joi.string().default('*').description('Origini consentite per CORS, separate da virgola'),
   })
   .unknown();
 
@@ -57,5 +58,9 @@ module.exports = {
       },
     },
     from: envVars.EMAIL_FROM,
+  },
+  cors: {
+    // '*' consente tutte le origini; in produzione impostare un elenco ristretto
+    origin: envVars.CORS_ORIGIN === '*' ? '*' : envVars.CORS_ORIGIN.split(',').map((o) => o.trim()),
   },
 };

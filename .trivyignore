@@ -1,2 +1,16 @@
-# Contiene le vulnerabilita accettate per Trivy con motivazione (al momento nessuna)
+# Vulnerabilita residue ACCETTATE con motivazione (rischio non sfruttabile nel contesto).
+# Riguardano solo tooling di dev/build, non il runtime di produzione. Inoltre, non hanno un upgrade
+# pulito su Node 16 senza rompere la build.
 
+# js-yaml (in swagger-jsdoc -> @apidevtools/json-schema-ref-parser): è usato solo durante build
+# per generare la documentazione OpenAPI dai commenti JSDoc dell'app (input fidato in quanto da dev,
+# non contiene dati utente). La rotta /v1/docs è, inoltre, attiva solo in sviluppo. Le CVE colpiscono il parsing di YAML
+# non fidato, condizione non raggiungibile qui. Fix richiederebbe js-yaml 4.2 forzato globalmente,
+# che rompe js-yaml 3.x usato da ESLint.
+CVE-2025-64718
+CVE-2026-53550
+
+# uuid (in jest -> node-notifier): dipendenza solo di test e non presente nell'immagine di produzione
+# (ovvero, durante build con --omit=dev). Il fix richiederebbe uuid >= 11 (salto di major) imposto a node-notifier, non
+# applicabile senza rischio di rompere il reporter di Jest.
+CVE-2026-41907

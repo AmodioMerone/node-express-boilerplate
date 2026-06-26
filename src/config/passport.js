@@ -6,6 +6,8 @@ const { User } = require('../models');
 const jwtOptions = {
   secretOrKey: config.jwt.secret,
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  // Algoritmo fissato: blocca la confusione di algoritmo (alg=none, RS256->HS256)
+  algorithms: ['HS256'],
 };
 
 const jwtVerify = async (payload, done) => {

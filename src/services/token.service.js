@@ -22,7 +22,8 @@ const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
     exp: expires.unix(),
     type,
   };
-  return jwt.sign(payload, secret);
+  // Firma con algoritmo simmetrico fissato a HS256
+  return jwt.sign(payload, secret, { algorithm: 'HS256' });
 };
 
 /**
@@ -52,7 +53,8 @@ const saveToken = async (token, userId, expires, type, blacklisted = false) => {
  * @returns {Promise<Token>}
  */
 const verifyToken = async (token, type) => {
-  const payload = jwt.verify(token, config.jwt.secret);
+  // Verifica accettando solo HS256: previene la confusione di algoritmo
+  const payload = jwt.verify(token, config.jwt.secret, { algorithms: ['HS256'] });
   const tokenDoc = await Token.findOne({ token, type, user: payload.sub, blacklisted: false });
   if (!tokenDoc) {
     throw new Error('Token not found');

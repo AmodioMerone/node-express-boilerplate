@@ -37,9 +37,9 @@ app.use(mongoSanitize());
 // gzip compression
 app.use(compression());
 
-// enable cors
-app.use(cors());
-app.options('*', cors());
+// CORS ristretto alle origini configurate
+app.use(cors({ origin: config.cors.origin }));
+app.options('*', cors({ origin: config.cors.origin }));
 
 // jwt authentication
 app.use(passport.initialize());
