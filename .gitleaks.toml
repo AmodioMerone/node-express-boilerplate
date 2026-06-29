@@ -1,0 +1,16 @@
+# Configurazione gitleaks: regole di default + allowlist dei falsi positivi del repo.
+title = "gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsi positivi: template .env.example e segreto JWT fittizio usato solo nei test/CI"
+# .env.example contiene solo valori placeholder
+paths = [
+  '''\.env\.example$''',
+]
+# Segreto JWT finto presente in ci.yml, security.yml e verify.compose.yml (usato per i test)
+regexes = [
+  '''secret1_di1_prova11''',
+]
