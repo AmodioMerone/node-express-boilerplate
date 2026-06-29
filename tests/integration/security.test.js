@@ -32,9 +32,9 @@ describe('Sicurezza applicativa', () => {
   });
 
   describe('CORS', () => {
-    test('imposta header Access-Control-Allow-Origin sulle risposte', async () => {
+    test('non consente tutte le origini (nessun wildcard)', async () => {
       const res = await request(app).get('/v1/non-esistente');
-      expect(res.headers['access-control-allow-origin']).toBeDefined();
+      expect(res.headers['access-control-allow-origin']).not.toBe('*');
     });
   });
 
