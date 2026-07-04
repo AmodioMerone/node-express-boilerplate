@@ -1,0 +1,84 @@
+services:
+  app:
+    build:
+      context: .
+    image: node-express-boilerplate:hardened
+    restart: unless-stopped
+    # In alternativa all'immagine locale si può usare quella pubblicata:
+    # image: amodiomerone/node-express-boilerplate:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URL=mongodb://mongodb:27017/node-boilerplate
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - '3000:3000' # unica porta pubblicata verso l'host
+    networks:
+      - backend
+    # --- hardening del container ---
+    read_only: true # filesystem root in sola lettura
+    tmpfs:
+      - /tmp # scritture temporanee solo in RAM
+    security_opt:
+      - no-new-privileges:true # vieta l'escalation di privilegi
+    cap_drop:
+      - ALL # rimuove tutte le Linux capability (non servono all'app)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/v1/docs',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  mongodb:
+    image: mongo:6.0
+    restart: unless-stopped
+    # il DB è raggiungibile solo dalla rete interna 'backend'
+    volumes:
+      - dbdata:/data/db
+    networks:
+      - backend
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.runCommand({ ping: 1 }).ok']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+volumes:
+  dbdata:
+
+networks:
+  backend:
+    driver: bridge
