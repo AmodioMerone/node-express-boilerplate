@@ -75,4 +75,5 @@ jobs:
 
       - name: Avviso se i secret DockerHub non sono configurati
         if: ${{ env.DOCKERHUB_USERNAME == '' || env.DOCKERHUB_TOKEN == '' }}
-        run: echo "::notice::Secret DOCKERHUB_USERNAME/DOCKERHUB_TOKEN non configurati: gate di sicurezza eseguito, push saltato."
+        run: |
+          echo "::notice::Secret DOCKERHUB_USERNAME/DOCKERHUB_TOKEN non configurati - gate di sicurezza eseguito, push saltato."
