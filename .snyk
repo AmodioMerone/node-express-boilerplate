@@ -1,5 +1,17 @@
 # File di policy Snyk (https://snyk.io)
 # Contiene eventuali advisory non risolvibili con motivazioni e scadenza
 version: v1.5.0
-ignore: {}
+ignore:
+  SNYK-JS-BRACEEXPANSION-17706650:
+    - '*':
+        reason: >-
+          Regular expression Denial of service (inefficient algorithmic complexity, con un input malevolo la regex può richiedere un tempo di calcolo eccessivo e causare DoS) in brace-expansion, raggiungibile solo
+          tramite il pattern glob di swagger-jsdoc (configurazione fidata dello sviluppatore,
+          valutata una sola volta all'avvio per generare la doc OpenAPI): nessun input utente
+          arriva a brace-expansion, quindi non è innescabile a runtime. La riga 1.x non ha un
+          fix pulito e forzare il salto di major su una dipendenza transitiva profonda
+          (sotto minimatch@3, richiesto da glob@7) romperebbe la risoluzione dei glob.
+          Rischio accettato.
+        created: 2026-06-27T00:00:00.000Z
+        expires: 2028-06-27T00:00:00.000Z
 patch: {}
