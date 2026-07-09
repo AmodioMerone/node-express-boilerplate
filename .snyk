@@ -14,4 +14,14 @@ ignore:
           Rischio accettato.
         created: 2026-06-27T00:00:00.000Z
         expires: 2028-06-27T00:00:00.000Z
+  SNYK-JS-JSYAML-17900054:
+    - '*':
+        reason: >-
+          Regular expression Denial of service (inefficient algorithmic complexity, con un input malevolo la regex può richiedere un tempo di calcolo eccessivo e causare DoS) in brace-expansion, raggiungibile solo a build-time per
+          parsare la doc OpenAPI generata dai commenti JSDoc (input fidato dello sviluppatore),
+          mai YAML fornito dall'utente: non sfruttabile a runtime. Il bump di versione non è
+          applicabile in modo pulito: una resolution globale forzerebbe js-yaml 4.x anche su
+          ESLint (che usa la 3.x, cambiano le API e la build si romperebbe).
+        created: 2026-06-27T00:00:00.000Z
+        expires: 2028-06-27T00:00:00.000Z
 patch: {}
