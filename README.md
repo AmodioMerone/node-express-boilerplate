@@ -378,7 +378,7 @@ Sul **lockfile originale**, Trivy rileva (allo stato attuale del suo database) *
 
 | Strategia | CVE | Interventi principali |
 |---|:---:|---|
-| Upgrade (diretto o del pacchetto padre) | 46 | `mongoose` 5→6, `jsonwebtoken` 8→9, `express` 4.17→4.21 (con le sue transitive `body-parser`/`qs`/`send`/`path-to-regexp`/…), `joi`, `passport`, `validator`, `moment`, `nodemailer`, `swagger-ui-express` |
+| Upgrade (diretto o del pacchetto padre) | 46 | `mongoose` 5→6, `jsonwebtoken` 8→9, `express` 4.17→4.21 (con le sue transitive `body-parser`/`qs`/`send`/`path-to-regexp`/…), `joi`, `passport`, `validator`, `moment`, `nodemailer`, `morgan` 1.10→1.11 (CVE-2026-5078), `swagger-ui-express` |
 | Rimozione di `pm2` | 37 | elimina un ampio sottoalbero non necessario in produzione (`axios`, `systeminformation`, `pac-resolver`, `follow-redirects`, `degenerator`, …) |
 | Upgrade transitivo (lockfile rigenerato) | 12 | `semver`, `ws`, `braces`, `picomatch`, `lodash` |
 | Pin via `resolutions` | 10 | `async`, `cross-spawn`, `minimatch`, `brace-expansion`, `on-headers` |
@@ -455,7 +455,7 @@ Elenco completo dei finding classificati come **falsi positivi** (non sfruttabil
 | `CVE-2026-41907` (uuid) | Trivy | `.trivyignore` | Dipendenza solo di test, assente in produzione (`--omit=dev`) |
 | `CVE-2026-13149` (brace-expansion, ReDoS) | Snyk | `.snyk` | Solo pattern glob fidati di swagger-jsdoc; fix solo in major 5.x, incompatibile con `minimatch@3` |
 | `CVE-2026-59869` (js-yaml, ReDoS) | Snyk | `.snyk` | Parsing della doc OpenAPI a build-time; fix `4.3.0` non forzabile senza rompere ESLint (js-yaml 3.x) |
-| Secret di esempio/test (`.env.example`, segreto CI) | gitleaks | `.gitleaks.toml` | Valori placeholder/fittizi, nessun segreto reale |
+| Secret di esempio/test (`.env.example`, segreto CI, token JWT di esempio nella history del progetto originale) | gitleaks | `.gitleaks.toml` | Valori placeholder/fittizi e token di documentazione, nessun segreto reale |
 | Reflected XSS (`user.controller.js`) | CodeQL | dismissed (Code scanning) | Risposta JSON + `nosniff` (helmet) + input sanificato da `xss-clean` |
 | NoSQL injection (`auth`/`user`/`token.service.js`, 3 alert) | CodeQL | dismissed (Code scanning) | `express-mongo-sanitize` + validazione Joi; per il token il campo `sub` proviene da un JWT firmato |
 

@@ -11,6 +11,8 @@ paths = [
   '''\.env\.example$''',
 ]
 # Segreto JWT finto presente in ci.yml, security.yml e verify.compose.yml (usato per i test)
+# e token JWT di esempio dell'upstream (hagopj13) rimasto nella history: non sono segreti reali
 regexes = [
   '''secret1_di1_prova11''',
+  '''m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg''',
 ]
